@@ -2,6 +2,8 @@ import json
 import time
 import logging
 import websocket
+import base64
+import base64
 from escpos.printer import Network, Usb
 
 # ===================================================
@@ -57,11 +59,11 @@ def print_bill(text: str):
         else:
             printer = Network(LAN_IP, port=LAN_PORT)
 
-        printer.charcode('CP850')
+        # printer.charcode('CP850')
         # printer._raw(b'\x1B\x21\x20')
         # printer._raw(b'\x1D\x57\x80\x02')
-        printer._raw(b'\x1B\x52\x08')
-        printer.set(align="center", width=2, height=2)
+        # printer._raw(b'\x1B\x52\x08')
+        # printer.set(align="center", width=2, height=2)
         printer.text(text + "\n")
         printer.cut(mode="PART")  #
         printer.close() 
@@ -74,24 +76,39 @@ def print_bill(text: str):
 # ===================================================
 # 🌐 WebSocket Event Handlers
 # ===================================================
-def on_message(ws, message):
-    """Triggered when a new print job message is received."""
-    try:
-        data = json.loads(message)
-        logger.info(f"📩 Received print job: {data}")
-        print("📩 Received print job:", data)
+# def on_message(ws, message):
+#     """Triggered when a new print job message is received."""
+#     try:
+#         data = json.loads(message)
+#         logger.info(f"📩 Received print job: {data}")
+#         print("📩 Received print job:", data)
 
-        text = data.get("text")
-        text = text.replace("₹", "Rs.")
-        if text:
-            print_bill(text)
-            time.sleep(0.5)
-        else:
-            logger.warning("⚠️ Received message without 'text' field.")
-            print("⚠️ Received message without 'text' field.")
-    except Exception as e:
-        logger.error(f"⚠️ Error processing message: {e}")
-        print(f"⚠️ Error processing message: {e}")
+#         text = data.get("text")
+#         text = text.replace("₹", "Rs.")
+#         if text:
+#             print_bill(text)
+#             time.sleep(0.5)
+#         else:
+#             logger.warning("⚠️ Received message without 'text' field.")
+#             print("⚠️ Received message without 'text' field.")
+#     except Exception as e:
+#         logger.error(f"⚠️ Error processing message: {e}")
+#         print(f"⚠️ Error processing message: {e}")
+
+def on_message(ws, message):
+    data = json.loads(message)
+
+    if "escpos" in data:
+        raw = base64.b64decode(data["escpos"])
+        print(raw)
+        printer = Usb(USB_VENDOR_ID, USB_PRODUCT_ID)
+        printer._raw(raw)
+        printer.close()
+        time.sleep(0.5)
+        print("🖨 Printed ESC/POS commands")
+    else:
+        print("⚠ No ESC/POS data received")
+
 
 def on_error(ws, error):
     logger.error(f"⚠️ WebSocket Error: {error}")

@@ -1,10 +1,12 @@
 {
   "org_id": "1",
-  "api_key": "80bb5f6686611cb59f5d4b28df0ea0b9594229e10dcb81b2717f211294c00d5c",
-  "ws_url": "ws://54.82.76.150/ws/print/",
+  "api_key": "89609d5b05dc0e3632f310b6de560b073a65e41e9b3efa7c6f6af53b6cb8a4d0",
+  "ws_url": "ws://0.0.0/ws/print/",
   "printer_type": "USB",
   "lan_ip": "127.0.0.1",
   "lan_port": 9100,
   "usb_vendor_id": "0x0483",
   "usb_product_id": "0x5743"
 }
+
+
